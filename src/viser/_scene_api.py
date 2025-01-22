@@ -1481,7 +1481,81 @@ class SceneApi:
                 depth_data=depth_bytes,
             )
         )
+    def set_background_image2(
+        self,
+        rgb_bytes: bytes,
+        media_type: Literal["image/png", "image/jpeg"] = "image/jpeg",
+        jpeg_quality: int | None = None,
+        depth: np.ndarray | None = None,
+    ) -> None:
+        """Set a background image for the scene, optionally with depth compositing.
 
+        Args:
+            image: The image to set as the background. Should have shape (H, W, 3).
+            format: Format to transport and display the image using ('png' or 'jpeg').
+            jpeg_quality: Quality of the jpeg image (if jpeg format is used).
+            depth: Optional depth image to use to composite background with scene elements.
+        """
+        # media_type, rgb_bytes = _encode_image_binary(
+        #     image, format, jpeg_quality=jpeg_quality
+        # )
+
+        # Encode depth if provided. We use a 3-channel PNG to represent a fixed point
+        # depth at each pixel.
+        depth_bytes = None
+        if depth is not None:
+            # Convert to fixed-point.
+            # We'll support from 0 -> (2^24 - 1) / 100_000.
+            #
+            # This translates to a range of [0, 167.77215], with a precision of 1e-5.
+            assert len(depth.shape) == 2 or (
+                len(depth.shape) == 3 and depth.shape[2] == 1
+            ), "Depth should have shape (H,W) or (H,W,1)."
+            depth = np.clip(depth * 100_000, 0, 2**24 - 1).astype(np.uint32)
+            assert depth is not None  # Appease mypy.
+            intdepth: np.ndarray = depth.reshape((*depth.shape[:2], 1)).view(np.uint8)
+            assert intdepth.shape == (*depth.shape[:2], 4)
+            with io.BytesIO() as data_buffer:
+                iio.imwrite(data_buffer, intdepth[:, :, :3], extension=".png")
+                depth_bytes = data_buffer.getvalue()
+
+        self._websock_interface.queue_message(
+            _messages.BackgroundImageMessage(
+                media_type=media_type,
+                rgb_data=rgb_bytes,
+                depth_data=depth_bytes,
+            )
+        )
+        
+    def set_background_h264_pckt(
+        self,
+        data: bytes,
+        time_stamp:int
+    ) -> None:
+        """Set a h264 packet for  image for the scene """
+
+
+        self._websock_interface.queue_message(
+            _messages.H264PacketMessage(
+                data=data,
+                time_stamp=time_stamp
+            )
+        )
+    def set_background_audio_pckt(
+        self,
+        data: bytes,
+        time_stamp:int
+        
+    ) -> None:
+        """Set an audio packet for the scene """
+
+
+        self._websock_interface.queue_message(
+            _messages.AudioPacketMessage(
+                packet=data,
+                time_stamp=time_stamp
+            )
+        )
     def add_image(
         self,
         name: str,

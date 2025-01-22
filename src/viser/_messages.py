@@ -763,6 +763,16 @@ class BackgroundImageMessage(Message):
     rgb_data: bytes | None
     depth_data: bytes | None
 
+@dataclasses.dataclass
+class H264PacketMessage(Message):
+    """Message for rendering a h264 videframe image."""
+    data: bytes
+    time_stamp: int
+@dataclasses.dataclass    
+class AudioPacketMessage(Message):
+    """Message for audio packets"""
+    packet: bytes
+    time_stamp: int
 
 @dataclasses.dataclass
 class ImageMessage(_CreateSceneNodeMessage):

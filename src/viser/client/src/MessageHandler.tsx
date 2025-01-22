@@ -40,6 +40,42 @@ function useMessageHandler() {
   const setClickable = viewer.useSceneTree((state) => state.setClickable);
   const updateUploadState = viewer.useGui((state) => state.updateUploadState);
 
+    /** Convert raw RGB color buffers to linear color buffers. **/
+  function threeColorBufferFromUint8Buffer(colors: ArrayBuffer) {
+    return new THREE.Float32BufferAttribute(
+      new Float32Array(new Uint8Array(colors)).map((value) => {
+        value = value / 255.0;
+        if (value <= 0.04045) {
+          return value / 12.92;
+        } else {
+          return Math.pow((value + 0.055) / 1.055, 2.4);
+        }
+      }),
+      3,
+    );
+  }
+
+
+  function bit16uint8ArrayToFloat32Array2(uint8Array:Uint8Array) {
+    const max16bit = 0x7FFF; // 32767 (hexadecimal notation)
+
+    const int16Length = Math.floor(uint8Array.length / 2);
+    const float32Array = new Float32Array(int16Length);
+    let k = 0;
+    for (let i = 0; i < uint8Array.length; i += 2) {
+        // Copy 4 bytes at a time
+        const value = (uint8Array[i  ] << 0) |
+                    uint8Array[i + 1] << 8;
+        
+        const signedValue = (value << 16) >> 16;            
+        float32Array[k] = signedValue/max16bit;
+        k++;
+    }
+
+    return float32Array;
+  }
+
+
   // Same as addSceneNode, but make a parent in the form of a dummy coordinate
   // frame if it doesn't exist yet.
   function addSceneNodeMakeParents(message: SceneNodeMessage) {
@@ -384,6 +420,50 @@ function useMessageHandler() {
           });
         }
         return;
+      }
+      case "VideoFrameMesssage": {
+        
+        requestAnimationFrame(()=>{
+          // const startTime = performance.now();
+          const canvas = viewer.canvas2dRef.current!;
+          canvas.width = message.frame.displayWidth;
+          canvas.height = message.frame.displayHeight;
+          const ctx = canvas.getContext("2d")!;
+         
+       
+          ctx.drawImage(message.frame, 0, 0, message.frame.displayWidth, message.frame.displayHeight);
+
+          const oldBackgroundTexture = viewer.backgroundMaterialRef.current!.uniforms.colorMap.value;
+          viewer.backgroundMaterialRef.current!.uniforms.colorMap.value = canvas;
+          if (isTexture(oldBackgroundTexture)) oldBackgroundTexture.dispose();
+
+          viewer.useGui.setState({ backgroundAvailable: true });
+        
+          message.frame.close();
+
+          viewer.backgroundMaterialRef.current!.uniforms.enabled.value = true;
+          viewer.backgroundMaterialRef.current!.uniforms.hasDepth.value = false;
+         
+        });
+
+        
+       
+        return
+      }
+      case "AudioPacketMessage" : {
+        // const audioData = new Float32Array(message.packet);
+        if ( viewer.audioWorkletPlayer.current!) {
+         
+
+          const float32Array = bit16uint8ArrayToFloat32Array2(message.packet);
+         
+          viewer.audioWorkletPlayer.current!.sendPacket({audioData:float32Array, time_stamp:message.time_stamp});
+
+
+
+        }
+        
+        return 
       }
       // Remove a scene node and its children by name.
       case "RemoveSceneNodeMessage": {

@@ -6,7 +6,9 @@
       "vite/client",
       "vite-plugin-svgr/client",
       "node",
-      "@types/wicg-file-system-access"
+      "@types/wicg-file-system-access",
+      "@types/dom-webcodecs"
+
     ],
     "allowJs": true,
     "skipLibCheck": true,
@@ -22,5 +24,6 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": ["src"]
+  "include": ["src/*","src/h264/*"],
+
 }

@@ -5,6 +5,11 @@ import { ViewerContext } from "./App";
 import { syncSearchParamServer } from "./SearchParamsUtils";
 import { WsWorkerIncoming, WsWorkerOutgoing } from "./WebsocketServerWorker";
 
+import { H264Decoder } from './h264/H264Decoder'
+import { NALParser } from './h264/NalParser'
+import {  Message, H264PacketMessage } from "./WebsocketMessages";
+
+
 /** Component for handling websocket connections. */
 export function WebsocketMessageProducer() {
   const messageQueueRef = useContext(ViewerContext)!.messageQueueRef;
@@ -16,6 +21,62 @@ export function WebsocketMessageProducer() {
   syncSearchParamServer(server);
 
   React.useEffect(() => {
+
+    let isSupported = false;
+// Check for WebCodecs support
+    try {
+      isSupported = typeof window !== 'undefined' && 'VideoDecoder' in window;
+    } catch (e) {
+      console.error('WebCodecs API check failed:', e);
+       return;
+    }
+
+    if (!isSupported) {
+      console.error('WebCodecs API is not supported in this browser');
+       return;
+    }
+   
+    
+    const options = {
+      width: 1920,
+      height: 1080,
+      frameRate: 30,
+      frameBuffer:messageQueueRef.current
+    };
+
+    
+    const decoder = new H264Decoder(options);
+
+    decoder.init();
+   
+    async function processH264Data(data: Message, decoder: H264Decoder) {
+
+        const me = data as H264PacketMessage;
+        if (me.data.length != 0) {
+          const nalUnits = NALParser.parseNALUnits(me.data);
+         
+          for (const key in nalUnits) {
+         
+            if  ( key == String(5) ) {
+              await decoder.feedData(nalUnits[key], me.time_stamp, true);
+
+              return
+              
+            } else if (key == String(1) )
+               {
+              await decoder.feedData(nalUnits[key], me.time_stamp, false);
+              return
+            }
+          }
+       
+          
+        }
+
+       
+
+      
+     
+    }
     const worker = new WebsocketServerWorker();
 
     worker.onmessage = (event) => {
@@ -36,7 +97,21 @@ export function WebsocketMessageProducer() {
           );
         };
       } else if (data.type === "message_batch") {
-        messageQueueRef.current.push(...data.messages);
+        for (const message of data.messages) {
+
+          if (message.type == 'H264PacketMessage' ) {
+
+              processH264Data(message, decoder);
+          }
+          else if (message.type == 'AudioPacketMessage'){
+
+                messageQueueRef.current.push(message);
+          }
+          
+          else
+            messageQueueRef.current.push(message);
+        }
+        // messageQueueRef.current.push(...data.messages);
       }
     };
     function postToWorker(data: WsWorkerIncoming) {

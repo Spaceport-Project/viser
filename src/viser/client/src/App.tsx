@@ -39,7 +39,7 @@ import { WebsocketMessageProducer } from "./WebsocketInterface";
 import { Titlebar } from "./Titlebar";
 import { ViserModal } from "./Modal";
 import { useSceneTreeState } from "./SceneTreeState";
-import { GetRenderRequestMessage, Message } from "./WebsocketMessages";
+import { GetRenderRequestMessage, Message, VideoFrameMessage } from "./WebsocketMessages";
 import { useThrottledMessageSender } from "./WebsocketFunctions";
 import { useDisclosure } from "@mantine/hooks";
 import { rayToViserCoords } from "./WorldTransformUtils";
@@ -49,12 +49,16 @@ import { FrameSynchronizedMessageHandler } from "./MessageHandler";
 import { PlaybackFromFile } from "./FilePlayback";
 import { SplatRenderContext } from "./Splatting/GaussianSplats";
 import { BrowserWarning } from "./BrowserWarning";
+import { AudioWorkletPlayer } from './audio-worklet-player';
+
 
 export type ViewerContextContents = {
   messageSource: "websocket" | "file_playback";
   // Zustand hooks.
   useSceneTree: UseSceneTree;
   useGui: UseGui;
+  audioWorkletPlayer: React.MutableRefObject<AudioWorkletPlayer | null >;
+
   // Useful references.
   // TODO: there's really no reason these all need to be their own ref objects.
   // We could have just one ref to a global mutable struct.
@@ -143,6 +147,7 @@ function ViewerRoot() {
     [name: string]: undefined | THREE.Object3D;
   }>({});
   const viewer: ViewerContextContents = {
+    audioWorkletPlayer: React.useRef(null),
     messageSource: playbackPath === null ? "websocket" : "file_playback",
     useSceneTree: useSceneTreeState(nodeRefFromName),
     useGui: useGuiState(initialServer),
@@ -615,9 +620,29 @@ function Viewer2DCanvas() {
     // Observe the canvas.
     const canvas = viewer.canvas2dRef.current!;
     resizeObserver.observe(canvas);
+       // let player = viewer.audioStremPlayer.current!;
+    if (!viewer.audioWorkletPlayer.current!)
+        viewer.audioWorkletPlayer.current! = new AudioWorkletPlayer(44100);
+    try {
+      viewer.audioWorkletPlayer.current!.initialize().then(()=> {
+        viewer.audioWorkletPlayer.current!.start();
+      });
+    } catch (error) {
+        console.error('Failed to initialize audio player:', error);
+    }
+    const handleClick = () => {
+      console.log('Page clicked!');
+      viewer.audioWorkletPlayer.current!.resumeContext();
+      // Your click handling logic here
+    };
+  
 
     // Cleanup
-    return () => resizeObserver.disconnect();
+    return () => {
+      resizeObserver.disconnect();
+      document.removeEventListener('click', handleClick);
+  
+    }
   });
   return (
     <canvas

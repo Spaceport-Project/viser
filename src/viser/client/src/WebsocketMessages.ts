@@ -959,6 +959,23 @@ export interface BackgroundImageMessage {
   rgb_data: Uint8Array | null;
   depth_data: Uint8Array | null;
 }
+
+
+export interface VideoFrameMessage {
+  type: "VideoFrameMesssage";
+  frame: VideoFrame;
+}
+export interface H264PacketMessage {
+  type: "H264PacketMessage";
+  data: Uint8Array;
+  time_stamp:number;
+
+}
+export interface AudioPacketMessage {
+  type: "AudioPacketMessage",
+  packet: Uint8Array;
+  time_stamp:number
+}
 /** Set the visibility of a particular node in the scene.
  *
  * (automatically generated)
@@ -1226,6 +1243,9 @@ export type Message =
   | SetPositionMessage
   | TransformControlsUpdateMessage
   | BackgroundImageMessage
+  | VideoFrameMessage
+  | H264PacketMessage
+  | AudioPacketMessage
   | SetSceneNodeVisibilityMessage
   | SetSceneNodeClickableMessage
   | SceneNodeClickMessage
