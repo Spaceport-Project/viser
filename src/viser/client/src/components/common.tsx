@@ -42,7 +42,7 @@ export function ViserInputComponent({
     );
 
   return (
-    <Box pb="0.5em" px="xs">
+    <Box pb="0.5em" px="xs" >
       {children}
     </Box>
   );

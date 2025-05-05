@@ -36,8 +36,11 @@ import {
 import React from "react";
 import BottomPanel from "./BottomPanel";
 import FloatingPanel from "./FloatingPanel";
+import FixedBottomPanel from "./FixedBottomPanel"
 import { ThemeConfigurationMessage } from "../WebsocketMessages";
 import SidebarPanel from "./SidebarPanel";
+import ButtonComponent from "../components/Button";
+import ToggleButtonComponent  from "../components/ToggleButton";
 
 // Must match constant in Python.
 const ROOT_CONTAINER_ID = "root";
@@ -72,6 +75,7 @@ export default function ControlPanel(props: {
 
   const generatedServerToggleButton = (
     <ActionIcon
+      // size={10}  
       onClick={(evt) => {
         evt.stopPropagation();
         toggle();
@@ -98,7 +102,7 @@ export default function ControlPanel(props: {
   const panelContents = (
     <>
       <Collapse in={!showGenerated || showSettings} p="xs" pt="0.375em">
-        <ServerControls />
+        {/* <ServerControls /> */}
       </Collapse>
       <Collapse in={showGenerated && !showSettings}>
         <MemoizedGeneratedGuiContainer containerUuid={ROOT_CONTAINER_ID} />
@@ -112,10 +116,10 @@ export default function ControlPanel(props: {
       <BottomPanel>
         <BottomPanel.Handle>
           <ConnectionStatus />
-          <BottomPanel.HideWhenCollapsed>
+          {/* <BottomPanel.HideWhenCollapsed>
             <ShareButton />
             {generatedServerToggleButton}
-          </BottomPanel.HideWhenCollapsed>
+          </BottomPanel.HideWhenCollapsed> */}
         </BottomPanel.Handle>
         <BottomPanel.Contents>{panelContents}</BottomPanel.Contents>
       </BottomPanel>
@@ -123,16 +127,71 @@ export default function ControlPanel(props: {
   } else if (props.control_layout === "floating") {
     /* Floating layout. */
     return (
-      <FloatingPanel width={controlWidth}>
-        <FloatingPanel.Handle>
-          <ConnectionStatus />
-          <FloatingPanel.HideWhenCollapsed>
-            <ShareButton />
-            {generatedServerToggleButton}
-          </FloatingPanel.HideWhenCollapsed>
-        </FloatingPanel.Handle>
-        <FloatingPanel.Contents>{panelContents}</FloatingPanel.Contents>
-      </FloatingPanel>
+  
+
+
+      // <FloatingPanel width={controlWidth}>
+      //   <FloatingPanel.Handle>
+      //     <ConnectionStatus />
+      //     <FloatingPanel.HideWhenCollapsed>
+      //       <ShareButton />
+      //       {generatedServerToggleButton}
+      //     </FloatingPanel.HideWhenCollapsed>
+      //   </FloatingPanel.Handle>
+      //   <FloatingPanel.Contents>{panelContents}</FloatingPanel.Contents>
+      // </FloatingPanel>
+
+      <FixedBottomPanel width="40%">
+      {/* <FixedBottomPanel.Handle> */}
+        {/* <ConnectionStatus /> */}
+        {/* <FixedBottomPanel.HideWhenCollapsed> */}
+            {/* <div>This content will be hidden when collapsed</div> */}
+            {/* <ShareButton /> */}
+             {/* {generatedServerToggleButton} */}
+          {/* </FixedBottomPanel.HideWhenCollapsed> */}
+
+      {/* </FixedBottomPanel.Handle> */}
+      <FixedBottomPanel.Contents>
+         {panelContents}
+         {/* <ToggleButtonComponent
+          type="GuiToggleButtonMessage"
+          uuid="toggle-button"
+          value={false}
+          container_uuid="container-id"
+          props={{
+            order: 1,
+            label: "Start",
+            hint: null,
+            visible: true,
+            disabled: false,
+            color: "blue",
+            _icon_html: null
+          }}
+          secondButtonProps={{
+            label: "Stop",
+            color: "red",
+            _icon_html: null
+          }}
+        /> */}
+        
+      </FixedBottomPanel.Contents>
+      </FixedBottomPanel>
+
+      // <BottomPanel>
+      // <BottomPanel.Handle>
+      //   <ConnectionStatus />
+      //   {/* <BottomPanel.HideWhenCollapsed>
+      //     <ShareButton />
+      //     {generatedServerToggleButton}
+      //   </BottomPanel.HideWhenCollapsed> */}
+      // </BottomPanel.Handle>
+      // <BottomPanel.Contents>{panelContents}</BottomPanel.Contents>
+      // </BottomPanel>
+      // // {panelContents}
+
+
+
+
     );
   } else {
     /* Sidebar view. */
@@ -144,7 +203,7 @@ export default function ControlPanel(props: {
         <SidebarPanel.Handle>
           <ConnectionStatus />
           <ShareButton />
-          {generatedServerToggleButton}
+          {/* {generatedServerToggleButton} */}
         </SidebarPanel.Handle>
         <SidebarPanel.Contents>{panelContents}</SidebarPanel.Contents>
       </SidebarPanel>
@@ -164,7 +223,7 @@ function ConnectionStatus() {
       <Transition transition="skew-down" mounted={connected}>
         {(styles) => (
           <IconCloudCheck
-            color={"#0b0"}
+            color={"blue"}
             style={{
               position: "absolute",
               width: "1.25em",
@@ -184,7 +243,7 @@ function ConnectionStatus() {
           />
         )}
       </Transition>
-      <Box px="xs" style={{ flexGrow: 1 }} lts={"-0.5px"} pt="0.1em">
+      <Box px="xs" style={{ flexGrow: 1, color: connected ? "blue" : "red"}} lts={"-0.5px"} pt="0.1em">
         {label !== "" ? label : connected ? "Connected" : "Connecting..."}
       </Box>
     </>

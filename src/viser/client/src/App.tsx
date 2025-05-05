@@ -49,9 +49,7 @@ import { FrameSynchronizedMessageHandler } from "./MessageHandler";
 import { PlaybackFromFile } from "./FilePlayback";
 import { SplatRenderContext } from "./Splatting/GaussianSplats";
 import { BrowserWarning } from "./BrowserWarning";
-import { AudioWorkletPlayer } from './audio-worklet-player';
-
-
+import { AudioFormat, AudioWorkletPlayer } from './audio-worklet-player';
 export type ViewerContextContents = {
   messageSource: "websocket" | "file_playback";
   // Zustand hooks.
@@ -272,10 +270,10 @@ function ViewerContents({ children }: { children: React.ReactNode }) {
               <ViewerCanvas>
                 <FrameSynchronizedMessageHandler />
               </ViewerCanvas>
-              {viewer.useGui((state) => state.theme.show_logo) &&
+              {/* {viewer.useGui((state) => state.theme.show_logo) &&
               viewer.messageSource == "websocket" ? (
                 <ViserLogo />
-              ) : null}
+              ) : null} */}
             </Box>
             {viewer.messageSource == "websocket" ? (
               <ControlPanel control_layout={controlLayout} />
@@ -622,7 +620,7 @@ function Viewer2DCanvas() {
     resizeObserver.observe(canvas);
        // let player = viewer.audioStremPlayer.current!;
     if (!viewer.audioWorkletPlayer.current!)
-        viewer.audioWorkletPlayer.current! = new AudioWorkletPlayer(44100);
+        viewer.audioWorkletPlayer.current! = new AudioWorkletPlayer(AudioFormat.AAC);
     try {
       viewer.audioWorkletPlayer.current!.initialize().then(()=> {
         viewer.audioWorkletPlayer.current!.start();
@@ -630,17 +628,17 @@ function Viewer2DCanvas() {
     } catch (error) {
         console.error('Failed to initialize audio player:', error);
     }
-    const handleClick = () => {
-      console.log('Page clicked!');
-      viewer.audioWorkletPlayer.current!.resumeContext();
-      // Your click handling logic here
-    };
+    // const handleClick = () => {
+    //   console.log('Page clicked!');
+    //   viewer.audioWorkletPlayer.current!.resumeContext();
+    //   // Your click handling logic here
+    // };
   
 
     // Cleanup
     return () => {
       resizeObserver.disconnect();
-      document.removeEventListener('click', handleClick);
+      // document.removeEventListener('click', handleClick);
   
     }
   });

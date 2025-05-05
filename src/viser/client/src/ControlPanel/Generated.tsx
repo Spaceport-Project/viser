@@ -5,6 +5,7 @@ import { GuiComponentContext } from "./GuiComponentContext";
 import { Box } from "@mantine/core";
 import React from "react";
 import ButtonComponent from "../components/Button";
+import ToggleButtonComponent from "../components/ToggleButton";
 import SliderComponent from "../components/Slider";
 import NumberInputComponent from "../components/NumberInput";
 import TextInputComponent from "../components/TextInput";
@@ -22,6 +23,7 @@ import FolderComponent from "../components/Folder";
 import MultiSliderComponent from "../components/MultiSlider";
 import UploadButtonComponent from "../components/UploadButton";
 import ProgressBarComponent from "../components/ProgressBar";
+import SliderBarTextComponent from "../components/SliderBarText";
 import ImageComponent from "../components/Image";
 
 /** Root of generated inputs. */
@@ -77,7 +79,11 @@ function GuiContainer({ containerUuid }: { containerUuid: string }) {
     (a, b) => a.order - b.order,
   );
   const out = (
-    <Box pt="xs">
+    <Box  style={{ 
+      display: 'flex', 
+      flexWrap: 'wrap', 
+      gap: '0.5rem' 
+    }}  >
       {guiUuidOrderPairArray.map((pair) => (
         <GeneratedInput key={pair.uuid} guiUuid={pair.uuid} />
       ))}
@@ -107,6 +113,8 @@ function GeneratedInput(props: { guiUuid: string }) {
       return <ImageComponent {...conf} />;
     case "GuiButtonMessage":
       return <ButtonComponent {...conf} />;
+    // case "GuiToggleButtonMessage":
+    //     return <ToggleButtonComponent {...conf} />;  
     case "GuiUploadButtonMessage":
       return <UploadButtonComponent {...conf} />;
     case "GuiSliderMessage":
@@ -133,6 +141,8 @@ function GeneratedInput(props: { guiUuid: string }) {
       return <ButtonGroupComponent {...conf} />;
     case "GuiProgressBarMessage":
       return <ProgressBarComponent {...conf} />;
+    case "GuiSliderBarTextMessage":
+      return <SliderBarTextComponent {...conf} />;
     default:
       assertNeverType(conf);
   }

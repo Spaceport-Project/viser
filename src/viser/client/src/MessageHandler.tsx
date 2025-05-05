@@ -20,6 +20,8 @@ import { IconCheck } from "@tabler/icons-react";
 import { computeT_threeworld_world } from "./WorldTransformUtils";
 import { rootNodeTemplate } from "./SceneTreeState";
 import { GaussianSplatsContext } from "./Splatting/GaussianSplats";
+import { AudioFormat } from "./audio-worklet-player";
+// import { AudioFormat } from "./audio-worklet-player";
 
 /** Returns a handler for all incoming messages. */
 function useMessageHandler() {
@@ -455,9 +457,9 @@ function useMessageHandler() {
         if ( viewer.audioWorkletPlayer.current!) {
          
 
-          const float32Array = bit16uint8ArrayToFloat32Array2(message.packet);
-         
-          viewer.audioWorkletPlayer.current!.sendPacket({audioData:float32Array, time_stamp:message.time_stamp});
+          // const float32Array = bit16uint8ArrayToFloat32Array2(message.packet);
+          // console.log("message.packet", message.packet)
+          viewer.audioWorkletPlayer.current!.sendPacket({audioData:message.packet, timeStamp:message.time_stamp, format:AudioFormat.AAC});
 
 
 

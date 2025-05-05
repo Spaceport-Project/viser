@@ -362,6 +362,7 @@ export interface GuiProgressBarMessage {
   type: "GuiProgressBarMessage";
   uuid: string;
   value: number;
+  // length:number;
   container_uuid: string;
   props: {
     order: number;
@@ -385,6 +386,64 @@ export interface GuiProgressBarMessage {
     visible: boolean;
   };
 }
+
+export interface GuiSliderBarTextMessage {
+  type: "GuiSliderBarTextMessage";
+  uuid: string;
+  value: number;
+  length:number;
+  container_uuid: string;
+  props: {
+    order: number;
+    animated: boolean;
+    color:
+      | "dark"
+      | "gray"
+      | "red"
+      | "pink"
+      | "grape"
+      | "violet"
+      | "indigo"
+      | "blue"
+      | "cyan"
+      | "green"
+      | "lime"
+      | "yellow"
+      | "orange"
+      | "teal"
+      | null;
+    visible: boolean;
+  };
+}
+// export interface GuiProgressBarMessagesText  {
+//   type: "GuiProgressBarMessageText";
+//   uuid: string;
+//   value: number;
+//   container_uuid: string;
+//   props: {
+//     order: number;
+//     animated: boolean;
+//     color:
+//       | "dark"
+//       | "gray"
+//       | "red"
+//       | "pink"
+//       | "grape"
+//       | "violet"
+//       | "indigo"
+//       | "blue"
+//       | "cyan"
+//       | "green"
+//       | "lime"
+//       | "yellow"
+//       | "orange"
+//       | "teal"
+//       | null;
+//     visible: boolean;
+//   };
+//   timeLeftText: string;
+// }
+
 /** GuiPlotlyMessage(uuid: 'str', container_uuid: 'str', props: 'GuiPlotlyProps')
  *
  * (automatically generated)
@@ -464,8 +523,45 @@ export interface GuiButtonMessage {
       | "teal"
       | null;
     _icon_html: string | null;
+    label_second:string |null;
+    color_second:
+    | "dark"
+    | "gray"
+    | "red"
+    | "pink"
+    | "grape"
+    | "violet"
+    | "indigo"
+    | "blue"
+    | "cyan"
+    | "green"
+    | "lime"
+    | "yellow"
+    | "orange"
+    | "teal"
+    | null;
+    visible_second: boolean;
+
+    _icon_html_second: string | null;
+
   };
 }
+
+
+// export interface SecondButtonProps {
+//   label: string;
+//   color?: "dark" | "gray" | "red" | "pink" | "grape" | "violet" | "indigo" | "blue" | "cyan" | "green" | "lime" | "yellow" | "orange" | "teal" | null;
+//   _icon_html?: string | null;
+// }
+
+
+ 
+//   export interface GuiToggleButtonMessage extends Omit<GuiButtonMessage, 'type'> {  
+//     type: "GuiToggleButtonMessage"; 
+//     secondButtonProps?: SecondButtonProps;
+
+//   }  
+
 /** GuiUploadButtonMessage(uuid: 'str', container_uuid: 'str', props: 'GuiUploadButtonProps')
  *
  * (automatically generated)
@@ -1206,10 +1302,12 @@ export type Message =
   | GuiFolderMessage
   | GuiMarkdownMessage
   | GuiProgressBarMessage
+  | GuiSliderBarTextMessage
   | GuiPlotlyMessage
   | GuiImageMessage
   | GuiTabGroupMessage
   | GuiButtonMessage
+  // | GuiToggleButtonMessage
   | GuiUploadButtonMessage
   | GuiSliderMessage
   | GuiMultiSliderMessage
@@ -1291,10 +1389,12 @@ export type GuiComponentMessage =
   | GuiFolderMessage
   | GuiMarkdownMessage
   | GuiProgressBarMessage
+  | GuiSliderBarTextMessage
   | GuiPlotlyMessage
   | GuiImageMessage
   | GuiTabGroupMessage
   | GuiButtonMessage
+  // | GuiToggleButtonMessage
   | GuiUploadButtonMessage
   | GuiSliderMessage
   | GuiMultiSliderMessage
@@ -1340,10 +1440,12 @@ const typeSetGuiComponentMessage = new Set([
   "GuiFolderMessage",
   "GuiMarkdownMessage",
   "GuiProgressBarMessage",
+  "GuiSliderBarTextMessage",
   "GuiPlotlyMessage",
   "GuiImageMessage",
   "GuiTabGroupMessage",
   "GuiButtonMessage",
+  "GuiToggleButtonMessage",
   "GuiUploadButtonMessage",
   "GuiSliderMessage",
   "GuiMultiSliderMessage",

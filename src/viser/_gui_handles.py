@@ -19,6 +19,7 @@ from typing import (
     Literal,
     Tuple,
     TypeVar,
+    Union,
     cast,
     get_type_hints,
 )
@@ -64,7 +65,10 @@ if TYPE_CHECKING:
 
 
 T = TypeVar("T")
-TGuiHandle = TypeVar("TGuiHandle", bound="_GuiInputHandle")
+# TGuiHandle = TypeVar("TGuiHandle", bound="_GuiInputHandle")
+TGuiHandle = TypeVar("TGuiHandle", bound="_GuiInputHandle" )
+# TGuiToggleHandle = TypeVar("TGuiToggleHandle", bound="_GuiInputToggleHandle")
+
 NoneOrCoroutine = TypeVar("NoneOrCoroutine", None, Coroutine)
 
 
@@ -96,6 +100,8 @@ class _GuiHandleState(Generic[T]):
     value: T
     props: GuiPropsProtocol
     parent_container_id: str
+    # secondButtonProps : GuiPropsProtocol
+
     """Container that this GUI input was placed into."""
 
     update_timestamp: float = 0.0
@@ -209,6 +215,7 @@ class _GuiInputHandle(
         # ^Note: we mark this property as private for Sphinx because I haven't
         # been able to get it to resolve the TypeVar in a readable way.
         # For the documentation's sake, we'll be manually adding ::attribute directives below.
+
         return self._impl.value
 
     @value.setter
@@ -243,6 +250,54 @@ class _GuiInputHandle(
         """Read-only timestamp when this input was last updated."""
         return self._impl.update_timestamp
 
+# class _GuiInputToggleHandle(
+#     _GuiHandle[T],
+#     Generic[T],
+#     GuiBaseToggleProps,
+# ):
+#     @property
+#     def value(self) -> T:
+#         """Value of the GUI input. Synchronized automatically when assigned.
+
+#         :meta private:
+#         """
+#         # ^Note: we mark this property as private for Sphinx because I haven't
+#         # been able to get it to resolve the TypeVar in a readable way.
+#         # For the documentation's sake, we'll be manually adding ::attribute directives below.
+#         print(self._impl.value)
+#         return self._impl.value
+
+#     @value.setter
+#     def value(self, value: T | np.ndarray) -> None:
+#         if isinstance(value, np.ndarray):
+#             assert len(value.shape) <= 1, f"{value.shape} should be at most 1D!"
+#             value = tuple(map(float, value))  # type: ignore
+
+#         # Send to client, except for buttons.
+#         if not self._impl.is_button:
+#             self._impl.gui_api._websock_interface.queue_message(
+#                 GuiUpdateMessage(self._impl.uuid, {"value": value})
+#             )
+
+#         # Set internal state. We automatically convert numpy arrays to the expected
+#         # internal type. (eg 1D arrays to tuples)
+#         self._impl.value = type(self._impl.value)(value)  # type: ignore
+#         self._impl.update_timestamp = time.time()
+
+#         # Call update callbacks.
+#         for cb in self._impl.update_cb:
+#             # As a design decision: we choose to call update callbacks
+#             # synchronously instead of in the thread pool. It's rare that there
+#             # are significant blocking callbacks for GUI updates; this also
+#             # reduces the likelihood of many common race conditions.
+#             cb_out = cb(GuiEvent(client_id=None, client=None, target=self))
+#             if isinstance(cb_out, Coroutine):
+#                 self._impl.gui_api._event_loop.create_task(cb_out)
+
+#     @property
+#     def update_timestamp(self) -> float:
+#         """Read-only timestamp when this input was last updated."""
+#         return self._impl.update_timestamp
 
 StringType = TypeVar("StringType", bound=str)
 
@@ -420,7 +475,29 @@ class GuiButtonHandle(_GuiInputHandle[bool]):
         self._impl.update_cb.append(func)
         return func
 
+# class GuiToggleButtonHandle(_GuiInputToggleHandle[bool]):
+#     """Handle for a button input in our visualizer.
 
+#     .. attribute:: value
+#        :type: bool
+
+#        Value of the button. Set to `True` when the button is pressed. Can be manually set back to `False`.
+#     """
+
+#     def on_click(
+#         self: TGuiToggleHandle, func: Callable[[GuiEvent[TGuiToggleHandle]], NoneOrCoroutine]
+#     ) -> Callable[[GuiEvent[TGuiToggleHandle]], NoneOrCoroutine]:
+#         """Attach a function to call when a button is pressed.
+
+#         Note:
+#         - If `func` is a regular function (defined with `def`), it will be executed in a thread pool.
+#         - If `func` is an async function (defined with `async def`), it will be executed in the event loop.
+
+#         Using async functions can be useful for reducing race conditions.
+#         """
+#         self._impl.update_cb.append(func)
+#         return func
+    
 @dataclasses.dataclass
 class UploadedFile:
     """Result of a file upload."""
@@ -775,6 +852,8 @@ def _parse_markdown(markdown: str, image_root: Path | None) -> str:
 class GuiProgressBarHandle(_GuiInputHandle[float], GuiProgressBarProps):
     """Handle for updating and removing progress bars."""
 
+class GuiSliderBarTextHandle(_GuiInputHandle[float], GuiProgressBarProps):
+    """Handle for updating and removing slider bars with text."""
 
 class GuiMarkdownHandle(_GuiHandle[None], GuiMarkdownProps):
     """Handling for updating and removing markdown elements."""

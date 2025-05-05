@@ -17,6 +17,7 @@ from typing import (
     Sequence,
     Tuple,
     TypeVar,
+    Union,
     cast,
     overload,
 )
@@ -749,6 +750,10 @@ class GuiApi:
         color: Color | None = None,
         icon: IconName | None = None,
         order: float | None = None,
+        label_second:str | None = None,
+        icon_second: IconName | None = None,
+        color_second: Color | None = None,
+        visible_second: bool = False
     ) -> GuiButtonHandle:
         """Add a button to the GUI. The value of this input is set to `True` every time
         it is clicked; to detect clicks, we can manually set it back to `False`.
@@ -784,11 +789,74 @@ class GuiApi:
                         _icon_html=None if icon is None else svg_from_icon(icon),
                         disabled=disabled,
                         visible=visible,
+                        label_second=label_second,
+                        color_second=color_second,
+                        _icon_html_second=None if icon_second is None else svg_from_icon(icon_second),
+                        visible_second=visible_second
+
                     ),
                 ),
                 is_button=True,
             )
         )
+    # def add_toggle_button(
+    #     self,
+    #     label: str,
+    #     second_label: str,
+    #     disabled: bool = False,
+    #     visible: bool = True,
+    #     hint: str | None = None,
+    #     color: Color | None = None,
+    #     icon: IconName | None = None,
+    #     order: float | None = None,
+    #     # second_visible: bool = True,
+    #     # second_hint: str | None = None,
+    #     second_color: Color | None = None,
+    #     second_icon: IconName | None = None,
+    #     # second_order: float | None = None,
+    # ) -> GuiToggleButtonHandle:
+    #     uuid = _make_uuid()
+    #     order = _apply_default_order(order)
+    #     return GuiToggleButtonHandle(
+    #         self._create_gui_input(
+    #             value=False,
+    #             message=_messages.GuiToggleButtonMessage(
+    #                 value=False,
+    #                 uuid=uuid,
+    #                 container_uuid=self._get_container_uuid(),
+    #                 props=_messages.GuiButtonProps(
+    #                     order=order,
+    #                     label=label,
+    #                     hint=hint,
+    #                     color=color,
+    #                     _icon_html=None if icon is None else svg_from_icon(icon),
+    #                     disabled=disabled,
+    #                     visible=visible,
+    #                     # second_order=second_order,
+    #                     # second_label=second_label,
+    #                     # second_hint=second_hint,
+    #                     # second_color=second_color,
+    #                     # second__icon_html=None if second_icon is None else svg_from_icon(second_icon),
+    #                     # second_disabled=second_disabled,
+    #                     # second_visible=second_visible,
+                        
+
+
+
+    #                 ),
+    #                secondButtonProps =  _messages.GuiSecondButtonProps(
+    #                    label=second_label,
+    #                    color=second_color,
+    #                    _icon_html=None if second_icon is None else svg_from_icon(second_icon),
+    #                )
+    #             ),
+    #             is_button=True,
+    #         )
+    #     )
+        
+
+
+    
 
     def add_upload_button(
         self,
@@ -1256,6 +1324,7 @@ class GuiApi:
     def add_progress_bar(
         self,
         value: float,
+        # length:float = 0,
         visible: bool = True,
         animated: bool = False,
         color: Color | None = None,
@@ -1276,6 +1345,7 @@ class GuiApi:
         assert value >= 0 and value <= 100
         message = _messages.GuiProgressBarMessage(
             value=value,
+            # length=length,
             uuid=_make_uuid(),
             container_uuid=self._get_container_uuid(),
             props=_messages.GuiProgressBarProps(
@@ -1284,6 +1354,7 @@ class GuiApi:
                 color=color,
                 visible=visible,
             ),
+            
         )
         self._websock_interface.queue_message(message)
         handle = GuiProgressBarHandle(
@@ -1296,6 +1367,56 @@ class GuiApi:
             ),
         )
         return handle
+    
+    
+    
+    def add_slider_bar_text(
+        self,
+        value: float,
+        length:float = 0,
+        visible: bool = True,
+        animated: bool = False,
+        color: Color | None = None,
+        order: float | None = None,
+    ) -> GuiProgressBarHandle:
+        """Add a progress bar to the GUI.
+
+        Args:
+            value: Value of the progress bar. (0 - 100)
+            visible: Whether the progress bar is visible.
+            animated: Whether the progress bar is in a loading state (animated, striped).
+            color: The color of the progress bar.
+            order: Optional ordering, smallest values will be displayed first.
+
+        Returns:
+            A handle that can be used to interact with the GUI element.
+        """
+        assert value >= 0 and value <= 100
+        message = _messages.GuiSliderBarTextMessage(
+            value=value,
+            length=length,
+            uuid=_make_uuid(),
+            container_uuid=self._get_container_uuid(),
+            props=_messages.GuiProgressBarProps(
+                order=_apply_default_order(order),
+                animated=animated,
+                color=color,
+                visible=visible,
+            ),
+            
+        )
+        self._websock_interface.queue_message(message)
+        handle = GuiProgressBarHandle(
+            _GuiHandleState(
+                message.uuid,
+                self,
+                value=value,
+                props=message.props,
+                parent_container_id=message.container_uuid,
+            ),
+        )
+        return handle
+
 
     def add_slider(
         self,
@@ -1558,6 +1679,7 @@ class GuiApi:
     class GuiMessage(Protocol[GuiInputPropsType]):
         uuid: str
         props: GuiInputPropsType
+        # secondButtonProps: GuiInputPropsType
 
     def _create_gui_input(
         self,
@@ -1574,6 +1696,7 @@ class GuiApi:
         # Construct handle.
         handle_state = _GuiHandleState(
             props=message.props,
+            # secondButtonProps=message.secondButtonProps,
             gui_api=self,
             value=value,
             update_timestamp=time.time(),

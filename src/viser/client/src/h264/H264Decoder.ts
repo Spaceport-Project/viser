@@ -28,27 +28,54 @@ export class H264Decoder {
   async init(): Promise<void> {
   
 
-  const codecDataHex = '0142c028ffe100196742c02895900780227e5c05a808080a000007d00001d4c10801000468cb8f20'
+  const codecDataHex = '0142c028ffe100196742c02895900780227e5c05a808080a000007d00001d4c10801000468cb8f20' // 1920x1080
  
+  // const codecDataHex = '0142c032ffe100196742c032959002d00cdf9f016a020202800001f4000075304201000468cb8f20';
 
-
-  const bytePairs = codecDataHex.match(/.{1,2}/g); // Split into pairs of two characters
+  // const bytePairs = codecDataHex.match(/.{1,2}/g); // Split into pairs of two characters
   //console.log(bytePairs)
 
+  // if (!bytePairs) {
+  //   throw new Error('Invalid hex string');
+  // }
+  // const description = new Uint8Array(bytePairs.map(byte => parseInt(byte, 16)));
+
+ 
+
+  
+
+    // Extract profile and level from the codec data
+  const bytePairs = codecDataHex.match(/.{1,2}/g);
   if (!bytePairs) {
     throw new Error('Invalid hex string');
   }
-  const description = new Uint8Array(bytePairs.map(byte => parseInt(byte, 16)));
+  const bytes = bytePairs.map(byte => parseInt(byte, 16));
 
- 
+  // Profile is the second byte (index 1)
+  const profile = bytes[1].toString(16).padStart(2, '0');
+  // Constraints is the third byte (index 2)
+  const constraints = bytes[2].toString(16).padStart(2, '0');
+  // Level is the fourth byte (index 3)
+  const level = bytes[3].toString(16).padStart(2, '0');
 
-const config: VideoDecoderConfig  = {
-      codec: 'avc1.640028', //'avc1.42C03C', // H.264 codec with profile and level
-      description: description,  // 'H.264, Profile: Constrained Baseline, Level: 6, Resolution: 4096x3000, Framerate: 9fps, Chroma Format: 4:2:0, Colorimetry: BT.709',
-      codedWidth: 1920,
-      codedHeight: 1080,
-      
+  // Construct the codec string
+  const codecString = `avc1.${profile}${constraints}${level}`;
+  console.log(`Codec string: ${codecString}`);
+
+  const config : VideoDecoderConfig= {
+    codec: codecString,
+    description: new Uint8Array(bytes),
+    codedWidth: 1920,
+    codedHeight: 1080,
   };
+
+// const config: VideoDecoderConfig  = {
+//       codec: 'avc1.640028', //'avc1.42C03C', // H.264 codec with profile and level
+//       description: description,  // 'H.264, Profile: Constrained Baseline, Level: 6, Resolution: 4096x3000, Framerate: 9fps, Chroma Format: 4:2:0, Colorimetry: BT.709',
+//       codedWidth: 2880,
+//       codedHeight: 1620,
+      
+//   };
 
     this.decoder = new VideoDecoder({
       output: (frame: VideoFrame) => this.handleFrame(frame),

@@ -215,7 +215,7 @@ export default function FloatingPanel({
           zIndex: 10,
           position: "absolute",
           top: "1em",
-          right: "1em",
+          left: "75%",
           margin: 0,
           "& .expandIcon": {
             transform: "rotate(0)",

@@ -832,7 +832,7 @@ class GuiBaseProps:
 
     order: float
     """Order value for arranging GUI elements. Synchronized automatically when assigned."""
-    label: str
+    label: str 
     """Label text for the GUI element. Synchronized automatically when assigned."""
     hint: str | None
     """Optional hint text for the GUI element. Synchronized automatically when assigned."""
@@ -840,6 +840,52 @@ class GuiBaseProps:
     """Visibility state of the GUI element. Synchronized automatically when assigned."""
     disabled: bool
     """Disabled state of the GUI element. Synchronized automatically when assigned."""
+
+# @dataclasses.dataclass
+# class GuiBaseToggleProps:
+#     """Base message type containing fields commonly used by GUI inputs."""
+
+#     order: float
+#     """Order value for arranging GUI elements. Synchronized automatically when assigned."""
+#     label: str 
+#     """Label text for the GUI element. Synchronized automatically when assigned."""
+#     hint: str | None
+#     """Optional hint text for the GUI element. Synchronized automatically when assigned."""
+#     visible: bool
+#     """Visibility state of the GUI element. Synchronized automatically when assigned."""
+#     disabled: bool
+#     """Disabled state of the GUI element. Synchronized automatically when assigned."""
+#     label_second: str | None
+#     """Label text for the GUI element. Synchronized automatically when assigned."""
+
+# @dataclasses.dataclass
+# class GuiBaseToggleProps:
+#     """Base message type containing fields commonly used by GUI inputs."""
+
+#     order: float
+#     """Order value for arranging GUI elements. Synchronized automatically when assigned."""
+#     label: str
+#     """Label text for the GUI element. Synchronized automatically when assigned."""
+
+#     # second_order: float
+#     # """Order value for arranging GUI elements. Synchronized automatically when assigned."""
+#     second_label: str
+#     """Label text for the GUI element. Synchronized automatically when assigned."""
+#     hint: str | None
+#     """Optional hint text for the GUI element. Synchronized automatically when assigned."""
+#     visible: bool
+#     """Visibility state of the GUI element. Synchronized automatically when assigned."""
+#     disabled: bool
+#     """Disabled state of the GUI element. Synchronized automatically when assigned."""
+
+#     # second_hint: str | None
+#     # """Optional hint text for the GUI element. Synchronized automatically when assigned."""
+#     # second_visible: bool
+#     # """Visibility state of the GUI element. Synchronized automatically when assigned."""
+#     # second_disabled: bool
+#     # """Disabled state of the GUI element. Synchronized automatically when assigned."""
+
+
 
 
 @dataclasses.dataclass
@@ -891,8 +937,18 @@ class GuiProgressBarProps:
 @dataclasses.dataclass
 class GuiProgressBarMessage(_CreateGuiComponentMessage):
     value: float
+    # length: float
     container_uuid: str
     props: GuiProgressBarProps
+
+
+@dataclasses.dataclass
+class GuiSliderBarTextMessage(_CreateGuiComponentMessage):
+    value: float
+    length: float
+    container_uuid: str
+    props: GuiProgressBarProps
+
 
 
 @dataclasses.dataclass
@@ -979,13 +1035,50 @@ class GuiButtonProps(GuiBaseProps):
     """Color of the button. Synchronized automatically when assigned."""
     _icon_html: str | None
     """(Private) HTML string for the icon to be displayed on the button. Synchronized automatically when assigned."""
+    label_second: str | None
+    """Label text for the GUI element. Synchronized automatically when assigned."""
+    color_second: Color | None
+    """Color of the button. Synchronized automatically when assigned."""
+    _icon_html_second: str | None
+    """(Private) HTML string for the icon to be displayed on the button. Synchronized automatically when assigned."""
+    visible_second:bool
+    
+@dataclasses.dataclass
+class GuiSecondButtonProps():
+    label: str
+    """Label text for the GUI element. Synchronized automatically when assigned."""
+    color: Color | None
+    """Color of the button. Synchronized automatically when assigned."""
+    _icon_html: str | None
+    """(Private) HTML string for the icon to be displayed on the button. Synchronized automatically when assigned."""
 
+# @dataclasses.dataclass
+# class GuiToggleButtonProps(GuiBaseToggleProps):
+#     color: Color | None
+#     """Color of the button. Synchronized automatically when assigned."""
+#     _icon_html: str | None
+
+#     """(Private) HTML string for the icon to be displayed on the button. Synchronized automatically when assigned."""
+
+#     second_color: Color | None
+#     """Color of the button. Synchronized automatically when assigned."""
+#     second__icon_html: str | None
+
+#     """(Private) HTML string for the icon to be displayed on the button. Synchronized automatically when assigned."""
 
 @dataclasses.dataclass
 class GuiButtonMessage(_CreateGuiComponentMessage):
     value: bool
     container_uuid: str
     props: GuiButtonProps
+
+# @dataclasses.dataclass
+# class GuiToggleButtonMessage(_CreateGuiComponentMessage):
+#     value: bool
+#     container_uuid: str
+#     props: GuiButtonProps
+#     secondButtonProps: GuiSecondButtonProps
+
 
 
 @dataclasses.dataclass

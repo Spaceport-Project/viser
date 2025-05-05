@@ -30,7 +30,7 @@ export default function SliderComponent({
   const updateValue = (value: number) => setValue(uuid, value);
   const colorScheme = useMantineColorScheme().colorScheme;
   const input = (
-    <Flex justify="space-between">
+    <Flex justify="space-between" style={{ width:'100%' }}>
       <Slider
         id={uuid}
         className={marks === null ? sliderDefaultMarks : undefined}
@@ -39,6 +39,7 @@ export default function SliderComponent({
         radius="xs"
         style={{ flexGrow: 1 }}
         styles={(theme) => ({
+
           thumb: {
             height: "0.75rem",
             width: "0.5rem",

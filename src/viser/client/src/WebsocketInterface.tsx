@@ -28,12 +28,12 @@ export function WebsocketMessageProducer() {
       isSupported = typeof window !== 'undefined' && 'VideoDecoder' in window;
     } catch (e) {
       console.error('WebCodecs API check failed:', e);
-       return;
+      //  return;
     }
 
     if (!isSupported) {
       console.error('WebCodecs API is not supported in this browser');
-       return;
+      //  return;
     }
    
     

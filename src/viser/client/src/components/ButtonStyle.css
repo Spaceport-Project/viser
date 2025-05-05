@@ -1,0 +1,19 @@
+/* ButtonStyles.css */
+.transparent-hover-button {
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  
+  .transparent-hover-button:hover {
+    background-color: #228be6 !important;
+    /* color: white !important; */
+  }
+  
+  /* .transparent-hover-button:hover svg,
+  .transparent-hover-button:hover i,
+  .transparent-hover-button:hover span,
+  .transparent-hover-button:hover * {
+    fill: white !important;
+    color: white !important;
+  } */
